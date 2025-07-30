@@ -52,10 +52,10 @@
       <input type="number" id="targetRadius" placeholder="e.g., 100" />
     </div>
     <div class="input-group">
-  <label>Target LatLng (DMS, e.g., 7°16'37.9"S 112°43'26.8"E)</label>
-  <input type="text" id="dmsInput" placeholder="e.g., 7°16'37.9&quot;S 112°43'26.8&quot;E" />
-  <button onclick="convertDMSInput()">Convert DMS to Decimal</button>
-</div>
+      <label>Target LatLng (DMS, e.g., 7°16'37.9"S 112°43'26.8"E)</label>
+      <input type="text" id="dmsInput" placeholder="e.g., 7°16'37.9&quot;S 112°43'26.8&quot;E" />
+      <button onclick="convertDMSInput()">Convert DMS to Decimal</button>
+    </div>
 
 
     <div id="status">Status: Waiting for GPS data...</div>
@@ -223,28 +223,27 @@
       }
 
       function convertDMSInput() {
-  const dms = document.getElementById("dmsInput").value.trim();
-
-  const regex = /(\d{1,3})°(\d{1,2})'([\d.]+)"?([NS])\s+(\d{1,3})°(\d{1,2})'([\d.]+)"?([EW])/i;
-  const match = dms.match(regex);
-
-  if (!match) {
-    alert("Invalid DMS format. Use format like: 7°16'37.9\"S 112°43'26.8\"E");
-    return;
-  }
-
-  const [, dLat, mLat, sLat, dirLat, dLon, mLon, sLon, dirLon] = match;
-
-  let lat = parseInt(dLat) + parseInt(mLat) / 60 + parseFloat(sLat) / 3600;
-  let lon = parseInt(dLon) + parseInt(mLon) / 60 + parseFloat(sLon) / 3600;
-
-  if (dirLat.toUpperCase() === "S") lat = -lat;
-  if (dirLon.toUpperCase() === "W") lon = -lon;
-
-  document.getElementById("targetLat").value = lat.toFixed(6);
-  document.getElementById("targetLng").value = lon.toFixed(6);
-}
-
+      const dms = document.getElementById("dmsInput").value.trim();
+    
+      const regex = /(\d{1,3})°(\d{1,2})'([\d.]+)"?([NS])\s+(\d{1,3})°(\d{1,2})'([\d.]+)"?([EW])/i;
+      const match = dms.match(regex);
+    
+      if (!match) {
+        alert("Invalid DMS format. Use format like: 7°16'37.9\"S 112°43'26.8\"E");
+        return;
+      }
+    
+      const [, dLat, mLat, sLat, dirLat, dLon, mLon, sLon, dirLon] = match;
+    
+      let lat = parseInt(dLat) + parseInt(mLat) / 60 + parseFloat(sLat) / 3600;
+      let lon = parseInt(dLon) + parseInt(mLon) / 60 + parseFloat(sLon) / 3600;
+    
+      if (dirLat.toUpperCase() === "S") lat = -lat;
+      if (dirLon.toUpperCase() === "W") lon = -lon;
+    
+      document.getElementById("targetLat").value = lat.toFixed(6);
+      document.getElementById("targetLng").value = lon.toFixed(6);
+    }
 
       function showError(error) {
         let message = "";
