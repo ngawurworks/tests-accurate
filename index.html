@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GPS Tracking - Real or Fake Location Detection (Google Maps)</title>
+    <title>GPS Tracking - Real or Fake Location Detection</title>
     <style>
       body {
         margin: 0;
         font-family: sans-serif;
       }
       #map {
-        height: 80vh;
+        height: 60vh;
         width: 100%;
         border: 0;
       }
@@ -18,15 +18,42 @@
         margin: 10px;
         padding: 10px 20px;
       }
-      #status {
+      #status,
+      #location-check {
         font-weight: bold;
         padding: 10px;
         background: #f0f0f0;
       }
+      .input-group {
+        margin: 10px;
+      }
+      label {
+        display: block;
+        margin-bottom: 4px;
+      }
+      input {
+        padding: 5px;
+        width: 100%;
+        max-width: 300px;
+      }
     </style>
   </head>
   <body>
+    <div class="input-group">
+      <label>Target Latitude</label>
+      <input type="number" step="any" id="targetLat" placeholder="e.g., -6.2" />
+    </div>
+    <div class="input-group">
+      <label>Target Longitude</label>
+      <input type="number" step="any" id="targetLng" placeholder="e.g., 106.8" />
+    </div>
+    <div class="input-group">
+      <label>Radius (meters)</label>
+      <input type="number" id="targetRadius" placeholder="e.g., 100" />
+    </div>
+
     <div id="status">Status: Waiting for GPS data...</div>
+    <div id="location-check">Target Area Status: -</div>
     <button onclick="startWatching()">Start GPS Tracking</button>
     <button onclick="stopWatching()">Stop GPS Tracking</button>
     <div id="output"></div>
@@ -48,6 +75,12 @@
         const status = document.getElementById("status");
         status.innerHTML = `Status: ${message}`;
         status.style.color = isFake ? "red" : "green";
+      }
+
+      function updateLocationCheckStatus(message, inside) {
+        const el = document.getElementById("location-check");
+        el.innerHTML = `Target Area Status: ${message}`;
+        el.style.color = inside ? "green" : "red";
       }
 
       function startWatching() {
@@ -79,6 +112,7 @@
           watchId = null;
           document.getElementById("output").innerHTML = "GPS tracking stopped.";
           updateStatus("GPS tracking stopped.", false);
+          updateLocationCheckStatus("-", false);
         }
       }
 
@@ -147,8 +181,26 @@
           Identifying Timer: ${elapsedIdentifying.toFixed(1)}s<br>
         `;
 
+        // Load map
         const iframe = document.getElementById("map");
         iframe.src = `https://www.google.com/maps?q=${lat},${lon}&z=18&t=k&output=embed`;
+
+        // Check if inside radius
+        const targetLat = parseFloat(document.getElementById("targetLat").value);
+        const targetLng = parseFloat(document.getElementById("targetLng").value);
+        const radius = parseFloat(document.getElementById("targetRadius").value);
+
+        if (!isNaN(targetLat) && !isNaN(targetLng) && !isNaN(radius)) {
+          const distanceToTarget =
+            getDistanceFromLatLonInKm(lat, lon, targetLat, targetLng) * 1000;
+          const inside = distanceToTarget <= radius;
+          const message = inside
+            ? `🟢 Inside Target (${distanceToTarget.toFixed(1)}m)`
+            : `🔴 Outside Target (${distanceToTarget.toFixed(1)}m)`;
+          updateLocationCheckStatus(message, inside);
+        } else {
+          updateLocationCheckStatus("Target not set", false);
+        }
       }
 
       function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
@@ -181,6 +233,7 @@
         }
         document.getElementById("output").innerText = message;
         updateStatus(message, true);
+        updateLocationCheckStatus("-", false);
       }
     </script>
   </body>
